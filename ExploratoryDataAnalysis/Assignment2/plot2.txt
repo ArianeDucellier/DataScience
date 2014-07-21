@@ -1,0 +1,8 @@
+NEI <- readRDS("summarySCC_PM25.rds")
+NEI_B <- subset(NEI, NEI$fips=="24510")
+s <- tapply(NEI_B$Emissions, as.factor(NEI_B$year), sum)
+
+png("plot2.png", width=480, height=480)
+plot(as.numeric(dimnames(s)[[1]]), s, xlab="Year", ylab="Emissions (tons)",
+    main=expression("Emissions of PM"[2.5]*" in Baltimore City from all sources"), pch=16)
+dev.off()

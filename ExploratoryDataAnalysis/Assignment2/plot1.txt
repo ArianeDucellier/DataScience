@@ -1,0 +1,7 @@
+NEI <- readRDS("summarySCC_PM25.rds")
+s <- tapply(NEI$Emissions, as.factor(NEI$year), sum)
+
+png("plot1.png", width=480, height=480)
+plot(as.numeric(dimnames(s)[[1]]), s, xlab="Year", ylab="Emissions (tons)",
+    main=expression("Total emissions of PM"[2.5]*" in the USA from all sources"), pch=16)
+dev.off()

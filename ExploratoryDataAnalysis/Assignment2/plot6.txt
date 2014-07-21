@@ -1,0 +1,22 @@
+NEI <- readRDS("summarySCC_PM25.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
+mobile <- grep("[Mm]obile", SCC$EI.Sector)
+source <- SCC$SCC[mobile]
+source <- as.numeric(levels(source))[source] 
+source <- as.character(source)
+NEIsub <- subset(NEI, NEI$SCC %in% source)
+NEIsub_B <- subset(NEIsub, NEIsub$fips=="24510")
+NEIsub_LA <- subset(NEIsub, NEIsub$fips=="06037")
+
+s1 <- tapply(NEIsub_B$Emissions, as.factor(NEIsub_B$year), sum)
+s2 <- tapply(NEIsub_LA$Emissions, as.factor(NEIsub_LA$year), sum)
+
+png("plot6.png", width=960, height=480)
+oldpar <- par(mfrow=c(1,2))
+par(mfg=c(1, 1, 1, 2))
+plot(as.numeric(dimnames(s1)[[1]]), s1, xlab="Year", ylab="Emissions (tons)",
+    main=expression("Emissions of PM"[2.5]*" in Baltimore City from motor vehicle sources"), pch=16)
+par(mfg=c(1, 2, 1, 2))
+plot(as.numeric(dimnames(s2)[[1]]), s2, xlab="Year", ylab="Emissions (tons)",
+    main=expression("Emissions of PM"[2.5]*" in Los Angeles County from motor vehicle sources"), pch=16)
+dev.off()

@@ -1,0 +1,15 @@
+library(ggplot2)
+
+NEI <- readRDS("summarySCC_PM25.rds")
+NEI_B <- subset(NEI, NEI$fips=="24510")
+s <- tapply(NEI_B$Emissions, list(as.factor(NEI_B$year), as.factor(NEI_B$type)), sum)
+data <- data.frame(Emissions=c(s), year=rep(dimnames(s)[[1]], times=4), type=rep(dimnames(s)[[2]], each=4))
+
+png("plot3.png", width=960, height=480)
+p <- ggplot(data, aes(year, Emissions))
+p <- p + geom_point()
+p <- p + facet_grid(.~type)
+p <- p + labs(title=expression("Emissions of PM"[2.5]*" in Baltimore City"))
+p <- p + xlab("Year") + ylab("Emissions (tons)")
+print(p)
+dev.off()
