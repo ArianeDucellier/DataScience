@@ -29,6 +29,9 @@ hist(nb_steps, main="Total number of steps taken each day", xlab="Number of step
 
 ![plot of chunk unnamed-chunk-2](./PA1_template_files/figure-html/unnamed-chunk-2.png) 
 
+The mean of the total number of steps taken per day is equal to:
+
+
 ```r
 mean(nb_steps, na.rm=TRUE)
 ```
@@ -36,6 +39,9 @@ mean(nb_steps, na.rm=TRUE)
 ```
 ## [1] 10766
 ```
+
+The median of the total number of steps taken per day is equal to:
+
 
 ```r
 median(nb_steps, na.rm=TRUE)
@@ -53,10 +59,13 @@ To answer this question, we make a time series plot of the 5-minute intervals an
 
 ```r
 nb_steps <- tapply(data$steps, as.factor(data$interval), mean, na.rm=TRUE)
-plot(levels(as.factor(data$interval)), nb_steps, main="Daily activity pattern", xlab="Interval identifier", ylab="Average number of steps")
+plot(levels(as.factor(data$interval)), nb_steps, type="l", main="Daily activity pattern", xlab="Interval identifier", ylab="Average number of steps")
 ```
 
-![plot of chunk unnamed-chunk-3](./PA1_template_files/figure-html/unnamed-chunk-3.png) 
+![plot of chunk unnamed-chunk-5](./PA1_template_files/figure-html/unnamed-chunk-5.png) 
+
+The 5-minute interval that contains the maximum number of steps is:
+
 
 ```r
 levels(as.factor(data$interval))[which(nb_steps==max(nb_steps))]
@@ -69,7 +78,7 @@ levels(as.factor(data$interval))[which(nb_steps==max(nb_steps))]
 Imputing missing values
 -----------------------
 
-To fill the missing values in the dataset, we replace each missing value by the average value across all day of the corresponding 5-minute interval. Then, we define a second dataset where the missing values of the first dataset are filled. We make a histogram of the total number of steps taken each day, with the new dataset, and we calculate the mean and the median of the total number of steps taken per day. We compare the values obtained with the estimates from the first part of the assignment.
+To fill the missing values in the dataset, we replace each missing value by the average value across all days of the corresponding 5-minute interval. Then, we define a second dataset where the missing values of the first dataset are filled. We make a histogram of the total number of steps taken each day with the new dataset, and we calculate the mean and the median of the total number of steps taken per day. We compare the values obtained with the estimates from the first part of the assignment.
 
 
 ```r
@@ -84,21 +93,10 @@ nb_steps <- tapply(data2$steps, as.factor(data2$date), sum)
 hist(nb_steps, main="Total number of steps taken each day", xlab="Number of steps", ylab="Frequency")
 ```
 
-![plot of chunk unnamed-chunk-4](./PA1_template_files/figure-html/unnamed-chunk-4.png) 
+![plot of chunk unnamed-chunk-7](./PA1_template_files/figure-html/unnamed-chunk-7.png) 
 
-```r
-head(data2)
-```
+The mean of the total number of steps taken per day is now equal to:
 
-```
-##     steps       date interval
-## 1 1.71698 2012-10-01        0
-## 2 0.33962 2012-10-01        5
-## 3 0.13208 2012-10-01       10
-## 4 0.15094 2012-10-01       15
-## 5 0.07547 2012-10-01       20
-## 6 2.09434 2012-10-01       25
-```
 
 ```r
 mean(nb_steps, na.rm=TRUE)
@@ -108,6 +106,9 @@ mean(nb_steps, na.rm=TRUE)
 ## [1] 10766
 ```
 
+The median of the total number of steps taken per day is now equal to:
+
+
 ```r
 median(nb_steps, na.rm=TRUE)
 ```
@@ -116,12 +117,12 @@ median(nb_steps, na.rm=TRUE)
 ## [1] 10766
 ```
 
-These values do not differ much from the estimates from the first part of the assignment. The mean is a same, while the median is a bit larger. The impact of imputing missing data increases the estimates of the total daily number of steps.
+These values do not differ much from the estimates from the first part of the assignment. The mean is a same, while the median is a bit larger.
 
 Are there differences in activity patterns between weekdays and weekends?
 -------------------------------------------------------------------------
 
-To answer this question, we create a new factor variable in the dataset with two levels (???weekday??? and ???weekend???) indicating whether a given date is a weekday or weekend day. Then, we make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days. 
+To answer this question, we create a new factor variable in the dataset with two levels (weekday and weekend) indicating whether a given date is a weekday or weekend day. Then, we make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days. 
 
 
 ```r
@@ -143,11 +144,11 @@ nb_steps2 <- tapply(data_weekend$steps, as.factor(data_weekend$interval), mean, 
 
 oldpar <- par(mfrow=c(2, 1))
 par(mfg=c(1, 1, 2, 1))
-plot(levels(as.factor(data_weekend$interval)), nb_steps2, type="l", main="Weekend", xlab="Interval identifier", ylab="Average number of steps")
+plot(levels(as.factor(data_weekend$interval)), nb_steps2, type="l", ylim=c(0, 220), main="Weekend", xlab="Interval identifier", ylab="Average number of steps")
 par(mfg=c(2, 1, 2, 1))
-plot(levels(as.factor(data_weekday$interval)), nb_steps1, type="l", main="Week days", xlab="Interval identifier", ylab="Average number of steps")
+plot(levels(as.factor(data_weekday$interval)), nb_steps1, type="l", ylim=c(0, 220), main="Week days", xlab="Interval identifier", ylab="Average number of steps")
 ```
 
-![plot of chunk unnamed-chunk-5](./PA1_template_files/figure-html/unnamed-chunk-5.png) 
+![plot of chunk unnamed-chunk-10](./PA1_template_files/figure-html/unnamed-chunk-10.png) 
 
 The activity pattern of weekdays is clearly different from the activity pattern of weekends.
