@@ -1,0 +1,107 @@
+---
+title: "Simulation of the exponential distribution"
+author: "Ariane"
+date: "Saturday, September 20, 2014"
+output: pdf_document
+---
+
+We simulate the exponential distribution. The rate parameter $\lambda$ is set to 0.2. The mean of the exponential distribution is then $1/\lambda = 5$ and the standard deviation of the exponential distribution is also $1/\lambda = 5$. We investigate the distribution of the mean of 40 exponentials. To carry out this analysis, we need to do a thousand simulated data for each exponential distribution.
+
+```{r}
+# Data
+lambda <- 0.2 # rate parameter
+NS <- 1000 # number of exponentials
+ND <- 40 # number of data for each exponential distribution
+NB <- 10 # number of breaks to draw the histograms
+#
+# Simulations of the 40 exponentials
+data <- matrix(nr=ND, nc=NS)
+for (i in 1:NS){ data[,i] <- rexp(ND, lambda) }
+#
+# Computation of the average
+m <- rep(0, NS)
+for (i in 1:NS){ m[i] <- mean(data[,i]) }
+```
+
+The theoretical center of the distribution of the average of 40 exponentials is $1/\lambda = 5$. The theoretical variance of the distribution is $(1/\lambda)^2 / ND$ where ND = 40 is the number of simulations for each exponential. The theoretical variance is equal to `r (1/lambda)^2 / ND`.
+
+```{r}
+mth <- 1/lambda
+vth <- (1/lambda)^2 / ND
+pth <- 0.95
+```
+
+We compute the empirical value of the mean, the variance and the 95% confidence interval of the average of the 40 exponentials.
+
+```{r}
+ms <- mean(m)
+vs <- var(m)
+ps <- length(m[m >= mth - 1.96 * sqrt(vth) & m <= mth + 1.96 * sqrt(vth)]) / NS
+```
+
+The empirical value of the mean of the average of 40 exponential distributions is `r ms` and is close to the theoretical value `r mth`. The empirical value of the variance is `r vs` and is close to the theoretical value `r vth`. The empirical value of the confidence interval is `r ps` and is close to the theoretical value `r pth`.
+
+To compare the distribution of the average of the 40 exponentials to a normal distribution, we compute the values of a normal distribution with mean equal to the theoretical mean of the average of the 40 exponentials and variance equal to the theoretical variance of the average.
+
+```{r}
+sample <- sqrt(vth) * 0.01 * c(-400:400) + mth
+dsample <- dnorm(0.01 * c(-400:400))
+```
+
+We set the scale of the normal distribution at the same scale of the histogram of the average of the 40 exponentials.
+
+```{r}
+norm_hist <- hist(rnorm(NS), breaks=NB, plot=FALSE)
+max_density <- max(norm_hist$counts) / max(dsample)
+```
+
+We draw an histogram of the average of the 40 exponentials.
+
+```{r, echo=FALSE}
+ymax <- 1.5 * max(norm_hist$counts)
+hist(m, breaks=NB, xlim = c(1/lambda - 4/(lambda*sqrt(ND)), 1/lambda + 4/(lambda*sqrt(ND))),
+ylim=c(0, ymax), xlab="", ylab="", main="")
+par(new=TRUE)
+plot(c(1/lambda, 1/lambda), c(0, ymax), xlim = c(1/lambda - 4/(lambda*sqrt(ND)), 1/lambda + 4/(lambda*sqrt(ND))),
+ylim=c(0, ymax), xlab="", ylab="", col="red", type="l")
+par(new=TRUE)
+plot(sample, max_density * dsample, xlim = c(1/lambda - 4/(lambda*sqrt(ND)), 1/lambda + 4/(lambda*sqrt(ND))),
+ylim=c(0, ymax), xlab="", ylab="", col="blue", type="l") 
+title(main="Distribution of the average", xlab="Mean", ylab="Frequency")
+```
+
+The red bar is the theoretical mean of the average of the 40 exponentials. We can see that the histogram of the average is nearly equally distributed on both sides of the theoretical mean.
+
+The blue line is the normal distribution. We can see that the histogram of the average of the 40 exponentials is close to the normal distribution.
+
+## Appendix
+
+We now do the same analysis with the average of 400 exponential distributions and draw the new histogram.
+
+```{r, echo=FALSE}
+ND <- 40
+data <- matrix(nr=ND, nc=NS)
+for (i in 1:NS){ data[,i] <- rexp(ND, lambda) }
+m <- rep(0, NS)
+for (i in 1:NS){ m[i] <- mean(data[,i]) }
+vth <- (1/lambda)^2 / ND
+ms <- mean(m)
+vs <- var(m)
+ps <- length(m[m >= mth - 1.96 * sqrt(vth) & m <= mth + 1.96 * sqrt(vth)]) / NS
+sample <- sqrt(vth) * 0.01 * c(-400:400) + mth
+dsample <- dnorm(0.01 * c(-400:400))
+norm_hist <- hist(rnorm(NS), breaks=NB, plot=FALSE)
+max_density <- max(norm_hist$counts) / max(dsample)
+ymax <- 1.5 * max(norm_hist$counts)
+hist(m, breaks=NB, xlim = c(1/lambda - 4/(lambda*sqrt(ND)), 1/lambda + 4/(lambda*sqrt(ND))),
+ylim=c(0, ymax), xlab="", ylab="", main="")
+par(new=TRUE)
+plot(c(1/lambda, 1/lambda), c(0, ymax), xlim = c(1/lambda - 4/(lambda*sqrt(ND)), 1/lambda + 4/(lambda*sqrt(ND))),
+ylim=c(0, ymax), xlab="", ylab="", col="red", type="l")
+par(new=TRUE)
+plot(sample, max_density * dsample, xlim = c(1/lambda - 4/(lambda*sqrt(ND)), 1/lambda + 4/(lambda*sqrt(ND))),
+ylim=c(0, ymax), xlab="", ylab="", col="blue", type="l") 
+title(main="Distribution of the average", xlab="Mean", ylab="Frequency")
+```
+
+The new empirical value of the mean is `r ms`, the new empirical value of the variance is `r vs` and the new empirical value of the confidence interval is `r ps`. These new values are close to the theoretical values. The histogram of the average of the 400 exponentials is also close to the normal distribution.
