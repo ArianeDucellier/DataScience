@@ -1,0 +1,105 @@
+---
+title: "Motor Trend"
+author: "Ariane"
+date: "Sunday, October 26, 2014"
+output: pdf_document
+---
+
+## Summary
+
+We wonder whether an automatic or a manual transmission is better for the MPG of a car. From the data set mtcars, we cannot answer this question. Indeed, cars with a manual transmission seem to have a higher MPG. However, the probability that this hypothesis is false is rather high.
+
+## Exploratory analysis
+
+We have a data set of a collection of cars. There are eleven variables:
+
+- mpg: Miles/(US) gallon
+- cyl: Number of cylinders
+- disp: Displacement (cu.in.)
+- hp: Gross horsepower
+- drat: Rear axle ratio
+- wt: Weight (lb/1000)
+- qsec: 1/4 mile time
+- vs: V/S
+- am: Transmission (0 = automatic, 1 = manual)
+- gear: Number of forward gears
+- carb: Number of carburetors
+
+```{r, echo=FALSE}
+data(mtcars)
+mtcars$cyl <- as.factor(mtcars$cyl)
+mtcars$vs <- as.factor(mtcars$vs)
+mtcars$am <- as.factor(mtcars$am)
+mtcars$gear <- as.factor(mtcars$gear)
+mtcars$carb <- as.factor(mtcars$carb)
+```
+
+We are interested in the effect of an automatic or a manual transmission on the MPG (miles per gallon). We first draw a panel of the 6 continuous variables (mpg, disp, hp, drat, wt, and qsec) to check if they are correlated (see Figure 1 in Appendix). We also compute the correlations between them:
+
+```{r, echo=FALSE}
+mtcars_sub <- data.frame(mpg=mtcars$mpg, disp=mtcars$disp, hp=mtcars$hp, drat=mtcars$drat, wt=mtcars$wt, qsec=mtcars$qsec)
+cor(mtcars_sub)
+```
+
+The variables disp, hp, drat, and wt are highly correlated between each other and with the variable mpg. The variable qsec is less correlated with mpg. The variable wt is the more correlated with mpg. Therefore, we will keep only this one in our regression model.
+
+We then do a box-and-whisker plot of the data for each factor variable (cyl, vs, am, gear, and carb) to check if these variables have an effect on mpg (see Figure 2 in Appendix). The variables cyl, vs, and am seem to have more effect on the mpg than the variables gear and carb. Therefore, we will only keep the three first variables in our regression model.
+
+## Regression models
+
+We first test a model with only wt as continuous variable, and cyl, vs and am as factor variables.
+
+```{r, echo=FALSE}
+fit1 <- lm(mpg ~ wt + cyl + vs + am, data=mtcars)
+summary(fit1)$coeff
+m1 <- summary(fit1)$coeff[6, 1]
+s1 <- summary(fit1)$coeff[6, 2]
+```
+
+We test a second model with all the variables and improve it using the R function "step".
+
+```{r, echo=FALSE}
+fit_all <- lm(mpg ~ ., data=mtcars)
+fit2 <- step(fit_all, trace=0)
+summary(fit2)$coeff
+m2 <- summary(fit2)$coeff[6, 1]
+s2 <- summary(fit2)$coeff[6, 2]
+```
+
+The $R^2$ associated with the first model is equal to `r summary(fit1)$r.squared` and the $R^2$ associated with the second model is equal to `r summary(fit2)$r.squared`. These are rather high values, therefore the models seem to fit well the data, the second model being a little better than the first model.
+
+We make a plot of the residuals versus the fitted values for the two models (Figures 3 and 4 in Appendix) and we cannot see evidence of a correlation between the residuals and the fitted values. Therefore, we may think that we did not forget to take into account a variable that should have been included in the model.
+
+We compare the two models using the R function "anova".
+
+```{r, echo=FALSE}
+anova(fit1, fit2)
+```
+
+The second model has a lower RSS. Therefore, it allows fitting better the data. For the two models, the regression coefficient associated to am = 1 (manual transmission) is positive. It means that the mpg is higher for manual transmission than for automatic transmission. However, the probability that the regression coefficient associated to am = 1 is negative is equal to `r 1 - pt(m1/s1, 26)` for the first model, and to `r 1 - pt(m2/s2, 26)` for the second model. This is a rather high probability. Therefore, we cannot eliminate the hypothesis that the coefficient is negative, that is that automatic transmission is better than manual transmission.
+
+The data in the mtcars data set are therefore not sufficient to answer the question whether an automatic or a manual transmission is better for MPG. 
+
+## Appendix
+
+```{r, echo=FALSE, fig.height=5, fig.width=5}
+pairs(mtcars_sub, panel=panel.smooth, main="Figure 1. Motor cars")
+```
+
+```{r, echo=FALSE, fig.height=3}
+par(mfrow=c(2, 3), mai=c(0.3, 0.3, 0.2, 0.1), oma=c(0, 0, 2, 0))
+boxplot(mtcars$mpg ~ mtcars$cyl, names=c("4", "6", "8"), main="cyl")
+boxplot(mtcars$mpg ~ mtcars$vs, names=c("0", "1"), main="vs")
+boxplot(mtcars$mpg ~ mtcars$am, names=c("Automatic", "Manual"), main="am")
+boxplot(mtcars$mpg ~ mtcars$gear, names=c("3", "4", "5"), main="gear")
+boxplot(mtcars$mpg ~ mtcars$carb, names=c("1", "2", "3", "4", "6", "8"), main="carb")
+mtext("Figure 2. MPG", side=3, line=0, outer=TRUE)
+```
+
+```{r, echo=FALSE, fig.height=3, fig.width=3}
+plot(fit1, main="Figure 3. Model 1")
+```
+
+```{r, echo=FALSE, fig.height=3, fig.width=3}
+plot(fit2, main="Figure 4. Model 2")
+```
