@@ -1,0 +1,250 @@
+(6.25*8+12.5)*3+29
+3.65+2.99+2.56
+138450+113439+97030
+18*0.33814
+11*0.33814
+10*0.33814
+129,67+28,76+400+9,81
+129.67+28.76+400+9.81
+98901/99900
+99/999
+15534*96.8
+15534*96.8/100
+1000*15534/10.9
+0.968*10.9*2/1000
+0.032*10.9*2/1000
+0.864*4.8*2/1000
+0.136*4.8*2/1000
+0.77*0.80*0.90
+0.39*0.70*0.59*0.853
+library(AppliedPredctiveModeling)
+library(AppliedPredictiveModeling)
+library(caret)
+library(ggplot2)
+library(caret)
+library(AppliedPredictiveModeling)
+library(caret)
+data(AlzheimerDisease)
+data(concrete)
+set.seed(975)
+inTrain=createDataPartition(mixtures@CompressiveStrength, p=3/4)[[1]]
+inTrain=createDataPartition(mixtures$CompressiveStrength, p=3/4)[[1]]
+training=mixtures[inTrain,]
+testing=mixtures[-inTrain,]
+summary(training)
+hist(training$SuperPlasticizer)
+hist(as.numeric(training$SuperPlasticizer))
+hist(as.numeric(training$SuperPlasticizer),breaks=10)
+type(training$SuperPlasticizer)
+typeof(training$SuperPlasticizer)
+<p <- training$Superplasticizer
+sp <- training$Superplasticizer
+hist(sp)
+min(sp)
+length(sp)
+length(sp[sp==0])
+library(caret)
+library(AppliedPredictiveModeling)
+set.seed(3433)
+data(AlzheimerDisease)
+adData = data.frame(diagnosis,predictors)
+inTrain = createDataPartition(adData$diagnosis, p = 3/4)[[1]]
+training = adData[inTrain,]
+testing = adData[-inTrain]
+summary(training)
+noms <- names(training)
+nomsIL <- gsub('^[IL]',names)
+?gsub
+nomsIL <- grep('^[IL]',names)
+nomsIL <- grep("^[IL]",names)
+nomsIL <- grep("^[IL]",noms)
+nomsIL
+names(nomsIL)
+names[nomsIL]
+c(names)[nomsIL]
+noms[nomsIL]
+nomsIL <- grep("^[I][L]",noms)
+noms[nomsIL]
+nomsIL
+?preProcess
+res <- preProcess(training[,nomsIL],method="pca")
+res
+summary(res)
+res <- preProcess(training[,nomsIL],method="pca",tresh=0.90)
+res
+res <- preProcess(training[,nomsIL],method="pca",thresh=0.90)
+res
+library(caret)
+library(AppliedPredictiveModeling)
+set.seed(3433)
+data(AlzheimerDisease)
+adData = data.frame(diagnosis,predictors)
+inTrain = createDataPartition(adData$diagnosis, p = 3/4)[[1]]
+training = adData[ inTrain,]
+testing = adData[-inTrain,]
+nomsIL <- grep("^[I][L]",names(training))
+nomsIL
+subtrain <- training[,nomsIL]
+subPCA <- preProcess(subtrain,method="pca",thresh=0.80)
+model1 <- training(subtrain,method="glm")
+model1 <- train(subtrain,method="glm")
+?train
+model1 <- train(subtrain,diagnosis,method="glm")
+diagtrain=diagnosis[inTrain]
+model1 <- train(subtrain,diagtrain,method="glm")
+model2 <- train(subPCA,diagtrain,method="glm")
+model1
+preProc <- preProcess(subtrain,method="pca",thresh=0.80)
+?predict
+subPCA<-predict(preProc,subtrain)
+model2 <- train(subPCA,diagtrain,method="glm")
+model2
+test1<-predict(testing,mdel=model1)
+test1<-predict(model1,testing)
+test2<-predict(model2,testing)
+test2<-predict(model2,predict(preProc,testing))
+test1
+summary(test1)
+71/82
+sum(test1==diagtrain)
+dim(testing)
+length(diagtrain)
+diagtest=diagnosis[-inTrain]
+length(diagtest)
+sum(test1==diagtest)
+53/82
+subtest<-testing[,nomsIL]
+test2<-predict(model2,predict(preProc,subtest))
+test2
+sum(test2==diagtest)
+59/82
+4000/170
+88/2.54
+63/2.54
+92/2.54
+library(AppliedPredictiveModeling)
+data(segmentationOriginal)
+library(caret)
+summary(segmentationoriginal)
+summary(segmentationOriginal)
+training <- segmentationOriginal[segmentationOriginal$Case=="Train"]
+training <- segmentationOriginal[segmentationOriginal$Case=="Train",]
+dim(segmentationOriginal)
+dim(training)
+testing <- segmentationOriginal[segmentationOriginal$Case=="Test",]
+dim(testing)
+set.seed(125)
+summary(CART)
+segmentationOriginal?
++
+a
+?segmentationOriginal
+modFit<-train(Class~.,method="rpart",data=training)
+prediction(modFit,newdata=data.frame(TotalIntench2=c(23000),FiberWidthCh1=c(10),PerimStatusCh1=c(2)))
+predict(modFit,newdata=data.frame(TotalIntench2=c(23000),FiberWidthCh1=c(10),PerimStatusCh1=c(2)))
+testing[testing$TotalIntench==23000 & FiberWidthCh1 == 10 & PerimStatusCh1 == 2,]
+testing[testing$TotalIntench==23000 & testing$FiberWidthCh1 == 10 & testing$PerimStatusCh1 == 2,]
+predict(modFit,testing)
+modFit
+library(rattle)
+fancyRpartPlot(modFit$finalModel)
+library(pgmm)
+data(olive)
+olive=olive[,-1]
+summary(olive)
+modFit<-train(Area~.,method="rpart",data=olive)
+predict(modFit,newdata=as.data.frame(t(colMeans(olive))))
+fancyRpartPlot(modFit$finalModel)
+library(ElemStatLearn)
+data(SAheart)
+set.seed(8484)
+train = sample(1:dim(SAheart)[1],size=dim(SAheart)[1]/2,replace=F)
+trainSA = SAheart[train,]
+testSA = SAheart[-train,]
+modFit<-tree(Area~.,data=olive)
+modFit<-train(Area~.,method="tree",data=olive)
+?tree
+library(tree)
+modFit<-tree(Area~.,data=olive)
+modFit
+predict(modFit,newdata=as.data.frame(t(colMeans(olive))))
+fancyRpartPlot(modFit$finalModel)
+fancyRpartPlot(modFit)
+set.seed(13234)
+?train
+names(SAheart)
+modFit<-train(chd~alcohol+obesity+tobacco+typea+ldl,onset=age,data=training,method="glm",family="binomial")
+modFit<-train(chd~alcohol+obesity+tobacco+typea+ldl,onset=age,data=trainSA,method="glm",family="binomial")
+modFit<-train(chd~.,method="glm",data=trainSA)
+modFit
+modFit<-train(chd~.,method="glm",data=trainSA,family="binomial")
+modFit<-train(chd~.,method="glm",data=trainSA,family="binomial",onset=age)
+modFit<-train(chd~.age+alcohol+obesity+tobacco+typea+ldl,method="glm",data=trainSA,family="binomial")
+modFit<-train(chd~age+alcohol+obesity+tobacco+typea+ldl,method="glm",data=trainSA,family="binomial")
+modFit
+summary(modFit)
+missClass = function(values,prediction){sum(((prediction > 0.5)*1) != values)/length(values)}
+predictTest<-predict(modFit,testSA)
+predictTrain<-predict(modFit,trainSA)
+missClass(trainSA$chd,predictTrain)
+missClass(testSA$chd,predictTest)
+library(ElemStatLearn)
+data(vowel.train)
+data(vowel.test)
+names(vowel.train)
+vowel.train$y<-as.factor(vowel.train$y)
+vowel.test$y<-as.factor(vowel.test$y)
+set.seed(33833)
+modFit<-train(y~.,method="rf",data=vowel.train)
+?varImp
+varImp(modFit)
+setwd("/Users/ariane/Documents/Travail/Coursera/DataScience/PraticalMachineLearning/")
+setwd("/Users/ariane/Documents/Travail/Coursera/DataScience/PracticalMachineLearning/")
+training <- read.csv("pml-training.csv")
+nbNA <- vector(length=160)
+for(i in 1:160){nbNA[i] <- sum(is.na(training[,i]))}
+keep <- c(1:160)[nbNA==0]
+keep <- keep[keep>=8]
+training2 <- data.frame(user_name=as.factor(training$user_name), num_window=as.factor(training$num_window), training[,keep])
+dim(training2)
+M <- abs(cor(training2[-88]))
+names(training2)
+M <- abs(cor(training2[-c(1,2,88)]))
+M <- abs(cor(training2[,-c(1,2,88)]))
+summary(training2[,-c(1,2,88)])
+training <- read.csv("pml-training.csv",na.strings=c("","NA"))
+nbNA <- vector(length=160)
+for(i in 1:160){nbNA[i] <- sum(is.na(training[,i]))}
+keep <- c(1:160)[nbNA==0]
+keep <- keep[keep>=8]
+training2 <- data.frame(user_name=as.factor(training$user_name), num_window=as.factor(training$num_window), training[,keep])
+dim(training2)
+M <- abs(cor(training2[,-c(1,2,55)]))
+M
+diag(M) <- 0
+which(M > 0.7,arr.ind=T)
+preProc  <- preProcess(training2[,-c(1,2,55)],method="pca",pcaComp=2)
+library(caret)
+preProc  <- preProcess(training2[,-c(1,2,55)],method="pca",pcaComp=2)
+preProc
+summary(preProc)
+preProc  <- preProcess(training2[,-c(1,2,55)],method="pca")
+preProc
+?training
+?preProcess
+preProc  <- preProcess(training2[,-c(1,2,55)],method="pca",thresh=0.90)
+preProc
+preProc  <- preProcess(training2[,-c(1,2,55)],method="pca",thresh=0.80)
+preProc
+training3 <- predict(preProc,training2[,-c(1,2,55)])
+names(training3)
+training3 <- predict(preProc,training2[,-c(1,2,55)]+1)
+names(training3)
+training3 <- predict(preProc,training2[,-c(1,2,55)])
+training4 <- data.frame(training2$user_name, training2$num_window, training3, training2$classe)
+names(training4)
+training4 <- data.frame(user_name=training2$user_name, num_window=training2$num_window, training3, classe=training2$classe)
+names(training4)
+model1 <- train(classe ~ ., method="rpart", data=training4)
+model2 <- train(classe ~ ., method="rf", data=training4)
+model2

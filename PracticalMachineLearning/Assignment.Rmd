@@ -1,0 +1,45 @@
+---
+title: "Weight Lifting Exercise"
+output: html_document
+---
+
+## Summary
+
+The aim of this project is to build a machine learning algorithm to predict the manner in which six participants did a barbell lifts exercise, using data from accelerometers on their belt, forearm, arm, and dumbell. The participants could do the exercise in five differents ways (labelled "A" to "E").
+
+## Preprocessing
+
+First, I look at the data: we have 160 columns. The last one ("classe") corresponds to the way in which the participants did the exercise. This is the variable I want to predict.
+
+```{r, message=FALSE, warning=FALSE}
+library(caret)
+setwd("/Users/ariane/Documents/Travail/Coursera/DataScience/PracticalMachineLearning/")
+training <- read.csv("pml-training.csv", na.strings=c("","NA"))
+testing <- read.csv("pml-testing.csv", na.strings=c("","NA"))
+```
+
+Many variables have a lot of empty raws (empty line or "NA"). I won't keep these variables for my prediction. The variable "user_name" is the name of the participants, and the variable "num_window" seems to correspond to the index of the time window during which the exercise was recorded. These two variables seem interesting, therefore I will keep them for the prediction and assume that they are factor variables. The first variable ("X") is the index of the row. It does not seem very useful, so I won't keep it in my data set. I am not sure of the meaning of the variables "raw_timestamp_part_1", "rawtimestamp_part_2" and "cvtd_timestamp". Therefore, I won't keep them in my data set.
+
+````{r}
+nbNA <- vector(length=160)
+for(i in 1:160){nbNA[i] <- sum(is.na(training[,i]))}
+keep <- c(1:160)[nbNA==0]
+keep <- keep[keep>=8]
+training2 <- data.frame(user_name=as.factor(training$user_name), num_window=as.factor(training$num_window), training[,keep])
+testing2 <- data.frame(user_name=as.factor(testing$user_name), num_window=as.factor(testing$num_window), testing[,keep])
+```
+
+I still have 52 variables in my data set, which seems a bit too much. Therefore, I will perform a Principal Components Analysis, and I will keep only the variables that explain 80 % of the variance. I have now only 12 variables.
+
+````{r}
+preProc <- preProcess(training2[,-c(1,2,55)], method="pca", thresh=0.80)
+training3 <- predict(preProc, training2[,-c(1,2,55)])
+training4 <- data.frame(user_name=training2$user_name, num_window=training2$num_window, training3, classe=training2$classe)
+testing3 <- predict(preProc, testing2[,-c(1,2,55)])
+testing4 <- data.frame(user_name=testing2$user_name, num_window=testing2$num_window, testing3)
+```
+
+## Modeling
+
+I will try several models. Using the caret package, I first try to use classification trees with the method "rpart" of the function "train".
+
