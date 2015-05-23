@@ -1,6 +1,9 @@
 ---
 title: "Weight Lifting Exercise"
-output: html_document
+output:
+  html_document:
+    fig_caption: yes
+    keep_md: yes
 ---
 
 ## Summary
@@ -12,30 +15,31 @@ The aim of this project is to build a machine learning algorithm to predict the 
 First, I look at the data: we have 160 columns. The last one ("classe") corresponds to the way in which the participants did the exercise. This is the variable I want to predict.
 
 ```{r, message=FALSE, warning=FALSE}
+set.seed(1)
 library(caret)
 setwd("/Users/ariane/Documents/Travail/Coursera/DataScience/PracticalMachineLearning/")
-training <- read.csv("pml-training.csv", na.strings=c("","NA"))
-testing <- read.csv("pml-testing.csv", na.strings=c("","NA"))
+training <- read.csv("pml-training.csv", na.strings=c("", "NA"))
+testing <- read.csv("pml-testing.csv", na.strings=c("", "NA"))
 ```
 
-Many variables have a lot of empty raws (empty line or "NA"). I won't keep these variables for my prediction. The variable "user_name" is the name of the participants, and the variable "num_window" seems to correspond to the index of the time window during which the exercise was recorded. These two variables seem interesting, therefore I will keep them for the prediction and assume that they are factor variables. The first variable ("X") is the index of the row. It does not seem very useful, so I won't keep it in my data set. I am not sure of the meaning of the variables "raw_timestamp_part_1", "rawtimestamp_part_2" and "cvtd_timestamp". Therefore, I won't keep them in my data set.
+Many variables have a lot of empty raws (empty line or "NA"). I won't keep these variables for my prediction. The variable "user_name" is the name of the participants, and the variable "num_window" seems to correspond to the index of the time window during which the exercise was recorded. These two variables seem interesting, therefore I will keep them for the prediction and assume that they are factor variables. The first variable ("X") is the index of the row. It does not seem very useful, so I won't keep it in my data set. I am not sure of the meaning of the variables "raw_timestamp_part_1", "raw_timestamp_part_2", "cvtd_timestamp" and "new_window". Therefore, I won't keep them in my data set.
 
-````{r}
+```{r}
 nbNA <- vector(length=160)
-for(i in 1:160){nbNA[i] <- sum(is.na(training[,i]))}
-keep <- c(1:160)[nbNA==0]
-keep <- keep[keep>=8]
-training2 <- data.frame(user_name=as.factor(training$user_name), num_window=as.factor(training$num_window), training[,keep])
-testing2 <- data.frame(user_name=as.factor(testing$user_name), num_window=as.factor(testing$num_window), testing[,keep])
+for (i in 1:160){nbNA[i] <- sum(is.na(training[, i]))}
+keep <- c(1:160)[nbNA == 0]
+keep <- keep[keep >= 8]
+training2 <- data.frame(user_name=as.factor(training$user_name), num_window=as.factor(training$num_window), training[, keep])
+testing2 <- data.frame(user_name=as.factor(testing$user_name), num_window=as.factor(testing$num_window), testing[, keep])
 ```
 
 I still have 52 variables in my data set, which seems a bit too much. Therefore, I will perform a Principal Components Analysis, and I will keep only the variables that explain 80 % of the variance. I have now only 12 variables.
 
-````{r}
-preProc <- preProcess(training2[,-c(1,2,55)], method="pca", thresh=0.80)
-training3 <- predict(preProc, training2[,-c(1,2,55)])
+```{r}
+preProc <- preProcess(training2[, -c(1, 2, 55)], method="pca", thresh=0.80)
+training3 <- predict(preProc, training2[, -c(1, 2, 55)])
 training4 <- data.frame(user_name=training2$user_name, num_window=training2$num_window, training3, classe=training2$classe)
-testing3 <- predict(preProc, testing2[,-c(1,2,55)])
+testing3 <- predict(preProc, testing2[, -c(1, 2, 55)])
 testing4 <- data.frame(user_name=testing2$user_name, num_window=testing2$num_window, testing3)
 ```
 
@@ -43,3 +47,137 @@ testing4 <- data.frame(user_name=testing2$user_name, num_window=testing2$num_win
 
 I will try several models. Using the caret package, I first try to use classification trees with the method "rpart" of the function "train".
 
+```{r}
+#model1 <- train(classe ~ ., method="rpart", data=training4)
+#pred1 <- predict(model1, newdata=training4)
+#matrix1 <- confusionMatrix(pred1, training4$classe)$table
+```
+
+The corresponding confusion matrix is given in Figure 1
+
+```{r, echo=FALSE, fig.height=8, fig.width=8.5}
+source("get_color.R")
+NS <- 41
+matrix1 <- matrix(c(4204,1645,2177,1062,998,1183,1817,1200,1451,1491,0,0,0,0,0,0,0,0,0,0,193,335,45,703,1118), nr=5, nc=5, byrow=TRUE)
+matrix1 <- matrix1 / sum(matrix1)
+m <- dim(matrix1)[1]
+mini <- 0
+maxi <- max(abs(matrix1))
+par(cex=1, cex.axis=2, cex.lab=2, cex.main=2, mai=c(1,1,1,1.5), lab=c(m, m, 7), xaxs="i", yaxs="i")
+plot(c(0.5, m + 0.5), c(0.5, m + 0.5), type="n", xlab="", ylab="", xaxt="n", yaxt="n")
+for (i in 1:m){
+    for (j in 1:m){
+        rect(i - 0.5, j - 0.5, i + 0.5, j + 0.5, xlab="", ylab="", xaxt="n", yaxt="n", col=get_color(matrix1[i, j], mini, maxi, NS), border=get_color(matrix1[i, j], mini, maxi, NS))
+    }
+}
+axis(side=1, at = c(1:5), labels=c("A", "B", "C", "D", "E"))
+axis(side=2, at = c(1:5), labels=c("A", "B", "C", "D", "E"))
+title(main="Figure 1. Confusion matrix", xlab="Prediction", ylab="Reference")
+par(new=TRUE, cex=1, cex.axis=1.4, mai=c(1, 7.75, 1, 0.25), lab=c(2, (NS - 1) / 4 + 1, 7), xaxt="n", xaxs="i", yaxs="i")
+plot(c(0, 1), c(mini, maxi), type="n", xlab="", ylab="")
+rect(0, mini, 1, mini + (maxi - mini) / (2 * (NS - 1)), xlab="", ylab="", col=get_color(mini, mini, maxi, NS), border=get_color(mini, mini, maxi, NS))
+for (i in 2:(NS - 1)){
+    rect(0, mini + (2 * i - 3) * (maxi - mini) / (2 * (NS - 1)), 1, mini + (2 * i - 1) * (maxi - mini) / (2 * (NS - 1)), xlab="", ylab="", col=get_color(mini + (i - 1) * (maxi - mini) / (NS - 1), mini, maxi, NS), border=get_color(mini + (i - 1) * (maxi - mini) / (NS - 1), mini, maxi, NS))
+}
+rect(0, maxi - (maxi - mini) / (2 * (NS - 1)), 1, maxi, xlab="", ylab="", col=get_color(maxi, mini, maxi, NS), border=get_color(maxi, mini, maxi, NS))
+```
+
+The results are not very good. I now try to use Support Vector Machines with the method "svmLinear" of the function "train".
+
+```{r}
+#model2 <- train(classe ~ ., method="svmLinear", data=training4)
+#pred2 <- predict(model2, newdata=training4)
+#matrix2 <- confusionMatrix(pred2, training4$classe)$table
+```
+
+The corresponding confusion matrix is given in Figure 2
+
+```{r, echo=FALSE, fig.height=8, fig.width=8.5}
+source("get_color.R")
+NS <- 41
+matrix2 <- matrix(c(5580,0,0,0,0,0,3797,0,0,0,0,0,3422,0,0,0,0,0,3216,0,0,0,0,0,3607), nr=5, nc=5, byrow=TRUE)
+matrix2 <- matrix2 / sum(matrix2)
+m <- dim(matrix2)[1]
+mini <- 0
+maxi <- max(abs(matrix2))
+par(cex=1, cex.axis=2, cex.lab=2, cex.main=2, mai=c(1,1,1,1.5), lab=c(m, m, 7), xaxs="i", yaxs="i")
+plot(c(0.5, m + 0.5), c(0.5, m + 0.5), type="n", xlab="", ylab="", xaxt="n", yaxt="n")
+for (i in 1:m){
+    for (j in 1:m){
+        rect(i - 0.5, j - 0.5, i + 0.5, j + 0.5, xlab="", ylab="", xaxt="n", yaxt="n", col=get_color(matrix2[i, j], mini, maxi, NS), border=get_color(matrix2[i, j], mini, maxi, NS))
+    }
+}
+axis(side=1, at = c(1:5), labels=c("A", "B", "C", "D", "E"))
+axis(side=2, at = c(1:5), labels=c("A", "B", "C", "D", "E"))
+title(main="Figure 2. Confusion matrix", xlab="Prediction", ylab="Reference")
+par(new=TRUE, cex=1, cex.axis=1.4, mai=c(1, 7.75, 1, 0.25), lab=c(2, (NS - 1) / 4 + 1, 7), xaxt="n", xaxs="i", yaxs="i")
+plot(c(0, 1), c(mini, maxi), type="n", xlab="", ylab="")
+rect(0, mini, 1, mini + (maxi - mini) / (2 * (NS - 1)), xlab="", ylab="", col=get_color(mini, mini, maxi, NS), border=get_color(mini, mini, maxi, NS))
+for (i in 2:(NS - 1)){
+    rect(0, mini + (2 * i - 3) * (maxi - mini) / (2 * (NS - 1)), 1, mini + (2 * i - 1) * (maxi - mini) / (2 * (NS - 1)), xlab="", ylab="", col=get_color(mini + (i - 1) * (maxi - mini) / (NS - 1), mini, maxi, NS), border=get_color(mini + (i - 1) * (maxi - mini) / (NS - 1), mini, maxi, NS))
+}
+rect(0, maxi - (maxi - mini) / (2 * (NS - 1)), 1, maxi, xlab="", ylab="", col=get_color(maxi, mini, maxi, NS), border=get_color(maxi, mini, maxi, NS))
+```
+
+The results are now much better. To check the out-of-sample error, I use cross-validation.
+
+```{r}
+#folds <- createFolds(y=training4$classe, k=10, list=TRUE, returnTrain=TRUE)
+#predCV <- vector(length=dim(training4)[1])
+#for (i in 1:10){
+#    model0 <- train(classe ~ ., method="svmLinear", data=training4[folds[[i]],])
+#    pred0 <- predict(model0, newdata=training4[-folds[[i]],])
+#    predCV[-folds[[i]]] <- pred0
+#}
+#predCV[predCV == 1] <- "A"
+#predCV[predCV == 2] <- "B"
+#predCV[predCV == 3] <- "C"
+#predCV[predCV == 4] <- "D"
+#predCV[predCV == 5] <- "E"
+#matrix0 <- confusionMatrix(predCV, training4$classe)$table
+```
+
+The corresponding confusion matrix is given in Figure 3
+
+```{r, echo=FALSE, fig.height=8, fig.width=8.5}
+source("get_color.R")
+NS <- 41
+matrix0 <- matrix(c(5580,0,0,0,0,2,3797,0,0,0,0,0,3422,0,0,0,0,0,3216,0,0,0,0,0,3605), nr=5, nc=5, byrow=TRUE)
+matrix0 <- matrix0 / sum(matrix0)
+m <- dim(matrix0)[1]
+mini <- 0
+maxi <- max(abs(matrix0))
+par(cex=1, cex.axis=2, cex.lab=2, cex.main=2, mai=c(1,1,1,1.5), lab=c(m, m, 7), xaxs="i", yaxs="i")
+plot(c(0.5, m + 0.5), c(0.5, m + 0.5), type="n", xlab="", ylab="", xaxt="n", yaxt="n")
+for (i in 1:m){
+    for (j in 1:m){
+        rect(i - 0.5, j - 0.5, i + 0.5, j + 0.5, xlab="", ylab="", xaxt="n", yaxt="n", col=get_color(matrix0[i, j], mini, maxi, NS), border=get_color(matrix0[i, j], mini, maxi, NS))
+    }
+}
+axis(side=1, at = c(1:5), labels=c("A", "B", "C", "D", "E"))
+axis(side=2, at = c(1:5), labels=c("A", "B", "C", "D", "E"))
+title(main="Figure 3. Confusion matrix", xlab="Prediction", ylab="Reference")
+par(new=TRUE, cex=1, cex.axis=1.4, mai=c(1, 7.75, 1, 0.25), lab=c(2, (NS - 1) / 4 + 1, 7), xaxt="n", xaxs="i", yaxs="i")
+plot(c(0, 1), c(mini, maxi), type="n", xlab="", ylab="")
+rect(0, mini, 1, mini + (maxi - mini) / (2 * (NS - 1)), xlab="", ylab="", col=get_color(mini, mini, maxi, NS), border=get_color(mini, mini, maxi, NS))
+for (i in 2:(NS - 1)){
+    rect(0, mini + (2 * i - 3) * (maxi - mini) / (2 * (NS - 1)), 1, mini + (2 * i - 1) * (maxi - mini) / (2 * (NS - 1)), xlab="", ylab="", col=get_color(mini + (i - 1) * (maxi - mini) / (NS - 1), mini, maxi, NS), border=get_color(mini + (i - 1) * (maxi - mini) / (NS - 1), mini, maxi, NS))
+}
+rect(0, maxi - (maxi - mini) / (2 * (NS - 1)), 1, maxi, xlab="", ylab="", col=get_color(maxi, mini, maxi, NS), border=get_color(maxi, mini, maxi, NS))
+```
+
+The out-of-sample error seems very low. I think the model is now good enough and I will try the prediction with the testing data set.
+
+## Prediction
+
+```{r}
+#answers <- predict(model0, newdata=testing4)
+#pml_write_files = function(x){
+#    n = length(x)
+#        for (i in 1:n){
+#        filename = paste0("problem_id_", i, ".txt")
+#        write.table(x[i], file=filename, quote=FALSE, row.names=FALSE, col.names=FALSE)
+#    }
+#}
+#pml_write_files(answers)
+```
