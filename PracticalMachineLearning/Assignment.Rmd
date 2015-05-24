@@ -48,9 +48,9 @@ testing4 <- data.frame(user_name=testing2$user_name, num_window=testing2$num_win
 I will try several models. Using the caret package, I first try to use classification trees with the method "rpart" of the function "train".
 
 ```{r}
-#model1 <- train(classe ~ ., method="rpart", data=training4)
-#pred1 <- predict(model1, newdata=training4)
-#matrix1 <- confusionMatrix(pred1, training4$classe)$table
+model1 <- train(classe ~ ., method="rpart", data=training4)
+pred1 <- predict(model1, newdata=training4)
+matrix1 <- confusionMatrix(pred1, training4$classe)$table
 ```
 
 The corresponding confusion matrix is given in Figure 1
@@ -58,7 +58,6 @@ The corresponding confusion matrix is given in Figure 1
 ```{r, echo=FALSE, fig.height=8, fig.width=8.5}
 source("get_color.R")
 NS <- 41
-matrix1 <- matrix(c(4204,1645,2177,1062,998,1183,1817,1200,1451,1491,0,0,0,0,0,0,0,0,0,0,193,335,45,703,1118), nr=5, nc=5, byrow=TRUE)
 matrix1 <- matrix1 / sum(matrix1)
 m <- dim(matrix1)[1]
 mini <- 0
@@ -85,9 +84,9 @@ rect(0, maxi - (maxi - mini) / (2 * (NS - 1)), 1, maxi, xlab="", ylab="", col=ge
 The results are not very good. I now try to use Support Vector Machines with the method "svmLinear" of the function "train".
 
 ```{r}
-#model2 <- train(classe ~ ., method="svmLinear", data=training4)
-#pred2 <- predict(model2, newdata=training4)
-#matrix2 <- confusionMatrix(pred2, training4$classe)$table
+model2 <- train(classe ~ ., method="svmLinear", data=training4)
+pred2 <- predict(model2, newdata=training4)
+matrix2 <- confusionMatrix(pred2, training4$classe)$table
 ```
 
 The corresponding confusion matrix is given in Figure 2
@@ -95,7 +94,6 @@ The corresponding confusion matrix is given in Figure 2
 ```{r, echo=FALSE, fig.height=8, fig.width=8.5}
 source("get_color.R")
 NS <- 41
-matrix2 <- matrix(c(5580,0,0,0,0,0,3797,0,0,0,0,0,3422,0,0,0,0,0,3216,0,0,0,0,0,3607), nr=5, nc=5, byrow=TRUE)
 matrix2 <- matrix2 / sum(matrix2)
 m <- dim(matrix2)[1]
 mini <- 0
@@ -122,19 +120,19 @@ rect(0, maxi - (maxi - mini) / (2 * (NS - 1)), 1, maxi, xlab="", ylab="", col=ge
 The results are now much better. To check the out-of-sample error, I use cross-validation.
 
 ```{r}
-#folds <- createFolds(y=training4$classe, k=10, list=TRUE, returnTrain=TRUE)
-#predCV <- vector(length=dim(training4)[1])
-#for (i in 1:10){
-#    model0 <- train(classe ~ ., method="svmLinear", data=training4[folds[[i]],])
-#    pred0 <- predict(model0, newdata=training4[-folds[[i]],])
-#    predCV[-folds[[i]]] <- pred0
-#}
-#predCV[predCV == 1] <- "A"
-#predCV[predCV == 2] <- "B"
-#predCV[predCV == 3] <- "C"
-#predCV[predCV == 4] <- "D"
-#predCV[predCV == 5] <- "E"
-#matrix0 <- confusionMatrix(predCV, training4$classe)$table
+folds <- createFolds(y=training4$classe, k=10, list=TRUE, returnTrain=TRUE)
+predCV <- vector(length=dim(training4)[1])
+for (i in 1:10){
+    model0 <- train(classe ~ ., method="svmLinear", data=training4[folds[[i]],])
+    pred0 <- predict(model0, newdata=training4[-folds[[i]],])
+    predCV[-folds[[i]]] <- pred0
+}
+predCV[predCV == 1] <- "A"
+predCV[predCV == 2] <- "B"
+predCV[predCV == 3] <- "C"
+predCV[predCV == 4] <- "D"
+predCV[predCV == 5] <- "E"
+matrix0 <- confusionMatrix(predCV, training4$classe)$table
 ```
 
 The corresponding confusion matrix is given in Figure 3
@@ -142,7 +140,6 @@ The corresponding confusion matrix is given in Figure 3
 ```{r, echo=FALSE, fig.height=8, fig.width=8.5}
 source("get_color.R")
 NS <- 41
-matrix0 <- matrix(c(5580,0,0,0,0,2,3797,0,0,0,0,0,3422,0,0,0,0,0,3216,0,0,0,0,0,3605), nr=5, nc=5, byrow=TRUE)
 matrix0 <- matrix0 / sum(matrix0)
 m <- dim(matrix0)[1]
 mini <- 0
@@ -171,13 +168,13 @@ The out-of-sample error seems very low. I think the model is now good enough and
 ## Prediction
 
 ```{r}
-#answers <- predict(model0, newdata=testing4)
-#pml_write_files = function(x){
-#    n = length(x)
-#        for (i in 1:n){
-#        filename = paste0("problem_id_", i, ".txt")
-#        write.table(x[i], file=filename, quote=FALSE, row.names=FALSE, col.names=FALSE)
-#    }
-#}
-#pml_write_files(answers)
+answers <- predict(model0, newdata=testing4)
+pml_write_files = function(x){
+    n = length(x)
+        for (i in 1:n){
+        filename = paste0("problem_id_", i, ".txt")
+        write.table(x[i], file=filename, quote=FALSE, row.names=FALSE, col.names=FALSE)
+    }
+}
+pml_write_files(answers)
 ```
