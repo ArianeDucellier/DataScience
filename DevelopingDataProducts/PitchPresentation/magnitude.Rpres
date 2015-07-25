@@ -23,7 +23,7 @@ row.names(nonempty) <- names(data)
 names(data)
 ```
 
-Number of data available for each pair of magnitude scales
+Number of data available for each couple of magnitude scales
 
 ```{r, echo=FALSE}
 nonempty
@@ -81,9 +81,6 @@ g <- g + geom_point(aes(colour = freq, size = freq))
 g <- g + scale_colour_gradient(low = "grey25", high = "white")                    
 g <- g + geom_abline(intercept = coef(fit)[1], slope = coef(fit)[2], size = 1, colour = "red")
 g <- g + geom_abline(intercept = 0, slope = 1, size = 1, linetype = "dashed", colour = "grey25")
-g <- g + geom_abline(intercept = 2.07, slope = 0.67, size = 1, colour = "blue")
-g <- g + geom_abline(intercept = 2.13, slope = 0.67, size = 1, colour = "green")
-g <- g + stat_function(fun = function(t) 2.863 + exp(0.233 * t - 0.222), size = 1, colour = "gold")
 g <- g + coord_cartesian(xlim = c(min(subFreqData$ms), max(subFreqData$ms)), ylim = c(min(subFreqData$mw), max(subFreqData$mw)))
 g <- g + labs(x = "Surface wave magnitude", y = "Moment magnitude")
 g
@@ -91,6 +88,6 @@ g
 
 ***
 
-The red line is the result from our linear regression, the blue, green and yellow lines are relationships between the surface wave magnitude and the moment magnitude from the scientific litterature.
+The red line is the result from our linear regression.
 
 The R2 computed with the bootstrap method is equal to `r round(R2boot, digits = 3)`

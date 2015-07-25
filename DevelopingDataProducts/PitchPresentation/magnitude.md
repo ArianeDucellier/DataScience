@@ -14,7 +14,7 @@ Names of the magnitude scales
 [1] "md_L1" "md_L2" "md_L3" "mw"    "mb"    "ms"    "ml"   
 ```
 
-Number of data available for each pair of magnitude scales
+Number of data available for each couple of magnitude scales
 
 
 ```
@@ -78,6 +78,6 @@ Graph
 
 ***
 
-The red line is the result from our linear regression, the blue, green and yellow lines are relationships between the surface wave magnitude and the moment magnitude from the scientific litterature.
+The red line is the result from our linear regression.
 
-The R2 computed with the bootstrap method is equal to 0.67
+The R2 computed with the bootstrap method is equal to 0.682
